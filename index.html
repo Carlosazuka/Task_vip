@@ -1,171 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<title>TaskVIP</title>
-
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#090a0d">
+  <title>GoldTask</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="app">
+<div id="app">
 
-  <header class="header">
-    <div class="logo">TASK<span>VIP</span></div>
-    <div class="balance">$<span id="balance">0.00</span></div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">G</div>
+      <div>
+        <b>GOLD<span>TASK</span></b>
+        <small>MEMBERS AREA</small>
+      </div>
+    </div>
+
+    <div class="top-balance">
+      <small>BALANCE</small>
+      <strong>$<span id="balance">0.00</span></strong>
+    </div>
   </header>
+
 
   <main>
 
-    <section class="welcome">
-      <p class="small">WELCOME BACK</p>
-      <h1>Hello, <span id="username">Guest</span> 👋</h1>
-      <p class="muted">Complete your daily tasks.</p>
-    </section>
+    <!-- HOME -->
+    <section id="homePage" class="page active">
 
-    <section class="vip-card">
-      <div>
-        <p class="vip-label">MEMBERSHIP</p>
-        <h2>VIP <span id="vipLevel">0</span></h2>
-      </div>
-
-      <button class="vip-button" id="openVip">
-        VIEW VIP
-      </button>
-    </section>
-
-    <section class="tasks-section">
-
-      <div class="section-header">
-        <h2>Daily Tasks</h2>
-        <span id="taskCounter">0 / 3</span>
-      </div>
-
-      <div class="task" data-task="1">
-        <div class="task-icon">⚡</div>
-        <div class="task-info">
-          <strong>Daily Task #1</strong>
-          <span>Complete task</span>
+      <div class="hero">
+        <div>
+          <small>ACCOUNT OVERVIEW</small>
+          <h1>Welcome, <span id="username">Guest</span></h1>
+          <p>Manage your membership and daily activity.</p>
         </div>
-        <button class="task-button">START</button>
+
+        <div class="gold-bar"></div>
       </div>
 
-      <div class="task" data-task="2">
-        <div class="task-icon">🎯</div>
-        <div class="task-info">
-          <strong>Daily Task #2</strong>
-          <span>Complete task</span>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span>MEMBERSHIP</span>
+          <b>VIP <i id="vipLevel">0</i></b>
         </div>
-        <button class="task-button">START</button>
-      </div>
 
-      <div class="task" data-task="3">
-        <div class="task-icon">🚀</div>
-        <div class="task-info">
-          <strong>Daily Task #3</strong>
-          <span>Complete task</span>
+        <div class="stat-card">
+          <span>TODAY'S TASKS</span>
+          <b><i id="taskCount">0</i> / <i id="taskLimit">0</i></b>
         </div>
-        <button class="task-button">START</button>
+
+        <div class="stat-card">
+          <span>REFERRALS</span>
+          <b id="refCount">0</b>
+        </div>
       </div>
 
-      <div class="progress">
-        <div id="progressBar"></div>
+
+      <div class="section-title">
+        <div>
+          <small>DAILY ACTIVITY</small>
+          <h2>Available Tasks</h2>
+        </div>
+        <span id="taskDate"></span>
+      </div>
+
+      <div id="tasks"></div>
+
+
+      <div class="notice">
+        <div class="notice-icon">✓</div>
+        <div>
+          <b>Account status</b>
+          <p id="accountStatus">Select a membership to unlock tasks.</p>
+        </div>
       </div>
 
     </section>
 
-    <section class="notice">
-      🔒 Tasks require an active VIP membership.
+
+    <!-- VIP -->
+    <section id="vipPage" class="page">
+
+      <div class="page-heading">
+        <small>MEMBERSHIP</small>
+        <h1>VIP Levels</h1>
+        <p>Choose a membership level.</p>
+      </div>
+
+      <div id="vipList" class="vip-list"></div>
+
+    </section>
+
+
+    <!-- WALLET -->
+    <section id="walletPage" class="page">
+
+      <div class="page-heading">
+        <small>ACCOUNT</small>
+        <h1>Wallet</h1>
+        <p>Your internal account activity.</p>
+      </div>
+
+      <div class="wallet-card">
+        <small>AVAILABLE BALANCE</small>
+        <strong>$<span id="walletBalance">0.00</span></strong>
+        <div class="wallet-actions">
+          <button onclick="openWallet('deposit')">DEPOSIT</button>
+          <button onclick="openWallet('withdraw')">WITHDRAW</button>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <div>
+          <small>ACCOUNT HISTORY</small>
+          <h2>Transactions</h2>
+        </div>
+      </div>
+
+      <div id="transactions" class="transactions"></div>
+
+    </section>
+
+
+    <!-- REFERRAL -->
+    <section id="refPage" class="page">
+
+      <div class="page-heading">
+        <small>NETWORK</small>
+        <h1>Referral Program</h1>
+        <p>Invite people using your personal code.</p>
+      </div>
+
+      <div class="ref-card">
+        <small>YOUR REFERRAL CODE</small>
+        <div class="ref-code">
+          <strong id="refCode">----</strong>
+          <button onclick="copyReferral()">COPY</button>
+        </div>
+      </div>
+
+      <div class="ref-stats">
+        <div>
+          <small>REFERRALS</small>
+          <b id="referralsBig">0</b>
+        </div>
+        <div>
+          <small>REFERRAL CREDITS</small>
+          <b>$<span id="refEarnings">0.00</span></b>
+        </div>
+      </div>
+
     </section>
 
   </main>
 
-</div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+
+    <button class="nav active" data-page="homePage">
+      <span>⌂</span>
+      <small>Home</small>
+    </button>
+
+    <button class="nav" data-page="vipPage">
+      <span>◆</span>
+      <small>VIP</small>
+    </button>
+
+    <button class="nav" data-page="walletPage">
+      <span>▣</span>
+      <small>Wallet</small>
+    </button>
+
+    <button class="nav" data-page="refPage">
+      <span>↗</span>
+      <small>Referral</small>
+    </button>
+
+  </nav>
 
 
-<nav class="bottom-nav">
+  <!-- WALLET MODAL -->
+  <div id="walletModal" class="modal">
 
-  <button class="nav-item active">
-    <span>⌂</span>
-    <small>Home</small>
-  </button>
+    <div class="modal-box">
 
-  <button class="nav-item" id="navVip">
-    <span>♛</span>
-    <small>VIP</small>
-  </button>
+      <div class="modal-head">
+        <div>
+          <small id="walletModalLabel">ACCOUNT</small>
+          <h2 id="walletModalTitle">Deposit</h2>
+        </div>
 
-  <button class="nav-item">
-    <span>＋</span>
-    <small>Deposit</small>
-  </button>
+        <button class="close" onclick="closeWallet()">×</button>
+      </div>
 
-  <button class="nav-item">
-    <span>↗</span>
-    <small>Withdraw</small>
-  </button>
+      <div class="modal-info">
+        <p>
+          This interface is for account testing only.
+          No real payment or withdrawal is processed.
+        </p>
+      </div>
 
-  <button class="nav-item">
-    <span>♧</span>
-    <small>Referral</small>
-  </button>
+      <input
+        id="walletAmount"
+        type="number"
+        min="1"
+        step="0.01"
+        placeholder="Amount"
+      >
 
-</nav>
+      <button id="walletAction" class="primary">
+        CONTINUE
+      </button>
 
-
-<div class="modal" id="vipModal">
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-      <h2>VIP Membership</h2>
-      <button id="closeVip">×</button>
     </div>
 
-    <div class="vip-list">
+  </div>
 
-      <div class="vip-option">
+
+  <!-- LOGIN -->
+  <div id="loginModal" class="modal show">
+
+    <div class="modal-box login">
+
+      <div class="login-logo">
+        <div class="brand-mark big">G</div>
         <div>
-          <strong>VIP 1</strong>
-          <span>$2</span>
+          <b>GOLD<span>TASK</span></b>
+          <small>MEMBERS AREA</small>
         </div>
-        <button>SELECT</button>
       </div>
 
-      <div class="vip-option">
-        <div>
-          <strong>VIP 2</strong>
-          <span>$12</span>
-        </div>
-        <button>SELECT</button>
-      </div>
+      <h1>Welcome</h1>
+      <p>Create a local test account to enter the platform.</p>
 
-      <div class="vip-option">
-        <div>
-          <strong>VIP 3</strong>
-          <span>$30</span>
-        </div>
-        <button>SELECT</button>
-      </div>
+      <input
+        id="nameInput"
+        maxlength="18"
+        autocomplete="off"
+        placeholder="Enter username"
+      >
 
-      <div class="vip-option">
-        <div>
-          <strong>VIP 4</strong>
-          <span>$60</span>
-        </div>
-        <button>SELECT</button>
-      </div>
-
-      <div class="vip-option">
-        <div>
-          <strong>VIP 5</strong>
-          <span>$120</span>
-        </div>
-        <button>SELECT</button>
-      </div>
+      <button class="primary" onclick="login()">
+        ENTER ACCOUNT
+      </button>
 
     </div>
 
@@ -174,6 +259,5 @@
 </div>
 
 <script src="app.js"></script>
-
 </body>
 </html>
