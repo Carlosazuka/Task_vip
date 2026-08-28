@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ka">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <meta name="theme-color" content="#090a0d">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0,
+                 maximum-scale=1.0, user-scalable=no">
+
+  <meta name="theme-color" content="#050505">
+
   <title>GoldTask</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -12,252 +17,605 @@
 
 <div id="app">
 
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark">G</div>
-      <div>
-        <b>GOLD<span>TASK</span></b>
-        <small>MEMBERS AREA</small>
-      </div>
-    </div>
+  <!-- ================= LOGIN / REGISTER ================= -->
 
-    <div class="top-balance">
-      <small>BALANCE</small>
-      <strong>$<span id="balance">0.00</span></strong>
-    </div>
-  </header>
+  <section id="authPage" class="page active">
 
-
-  <main>
-
-    <!-- HOME -->
-    <section id="homePage" class="page active">
-
-      <div class="hero">
-        <div>
-          <small>ACCOUNT OVERVIEW</small>
-          <h1>Welcome, <span id="username">Guest</span></h1>
-          <p>Manage your membership and daily activity.</p>
-        </div>
-
-        <div class="gold-bar"></div>
-      </div>
-
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span>MEMBERSHIP</span>
-          <b>VIP <i id="vipLevel">0</i></b>
-        </div>
-
-        <div class="stat-card">
-          <span>TODAY'S TASKS</span>
-          <b><i id="taskCount">0</i> / <i id="taskLimit">0</i></b>
-        </div>
-
-        <div class="stat-card">
-          <span>REFERRALS</span>
-          <b id="refCount">0</b>
-        </div>
-      </div>
-
-
-      <div class="section-title">
-        <div>
-          <small>DAILY ACTIVITY</small>
-          <h2>Available Tasks</h2>
-        </div>
-        <span id="taskDate"></span>
-      </div>
-
-      <div id="tasks"></div>
-
-
-      <div class="notice">
-        <div class="notice-icon">✓</div>
-        <div>
-          <b>Account status</b>
-          <p id="accountStatus">Select a membership to unlock tasks.</p>
-        </div>
-      </div>
-
-    </section>
-
-
-    <!-- VIP -->
-    <section id="vipPage" class="page">
-
-      <div class="page-heading">
-        <small>MEMBERSHIP</small>
-        <h1>VIP Levels</h1>
-        <p>Choose a membership level.</p>
-      </div>
-
-      <div id="vipList" class="vip-list"></div>
-
-    </section>
-
-
-    <!-- WALLET -->
-    <section id="walletPage" class="page">
-
-      <div class="page-heading">
-        <small>ACCOUNT</small>
-        <h1>Wallet</h1>
-        <p>Your internal account activity.</p>
-      </div>
-
-      <div class="wallet-card">
-        <small>AVAILABLE BALANCE</small>
-        <strong>$<span id="walletBalance">0.00</span></strong>
-        <div class="wallet-actions">
-          <button onclick="openWallet('deposit')">DEPOSIT</button>
-          <button onclick="openWallet('withdraw')">WITHDRAW</button>
-        </div>
-      </div>
-
-      <div class="section-title">
-        <div>
-          <small>ACCOUNT HISTORY</small>
-          <h2>Transactions</h2>
-        </div>
-      </div>
-
-      <div id="transactions" class="transactions"></div>
-
-    </section>
-
-
-    <!-- REFERRAL -->
-    <section id="refPage" class="page">
-
-      <div class="page-heading">
-        <small>NETWORK</small>
-        <h1>Referral Program</h1>
-        <p>Invite people using your personal code.</p>
-      </div>
-
-      <div class="ref-card">
-        <small>YOUR REFERRAL CODE</small>
-        <div class="ref-code">
-          <strong id="refCode">----</strong>
-          <button onclick="copyReferral()">COPY</button>
-        </div>
-      </div>
-
-      <div class="ref-stats">
-        <div>
-          <small>REFERRALS</small>
-          <b id="referralsBig">0</b>
-        </div>
-        <div>
-          <small>REFERRAL CREDITS</small>
-          <b>$<span id="refEarnings">0.00</span></b>
-        </div>
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-
-    <button class="nav active" data-page="homePage">
-      <span>⌂</span>
-      <small>Home</small>
-    </button>
-
-    <button class="nav" data-page="vipPage">
-      <span>◆</span>
-      <small>VIP</small>
-    </button>
-
-    <button class="nav" data-page="walletPage">
-      <span>▣</span>
-      <small>Wallet</small>
-    </button>
-
-    <button class="nav" data-page="refPage">
-      <span>↗</span>
-      <small>Referral</small>
-    </button>
-
-  </nav>
-
-
-  <!-- WALLET MODAL -->
-  <div id="walletModal" class="modal">
-
-    <div class="modal-box">
-
-      <div class="modal-head">
-        <div>
-          <small id="walletModalLabel">ACCOUNT</small>
-          <h2 id="walletModalTitle">Deposit</h2>
-        </div>
-
-        <button class="close" onclick="closeWallet()">×</button>
-      </div>
-
-      <div class="modal-info">
-        <p>
-          This interface is for account testing only.
-          No real payment or withdrawal is processed.
-        </p>
-      </div>
-
-      <input
-        id="walletAmount"
-        type="number"
-        min="1"
-        step="0.01"
-        placeholder="Amount"
-      >
-
-      <button id="walletAction" class="primary">
-        CONTINUE
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- LOGIN -->
-  <div id="loginModal" class="modal show">
-
-    <div class="modal-box login">
+    <div class="login">
 
       <div class="login-logo">
         <div class="brand-mark big">G</div>
+
         <div>
           <b>GOLD<span>TASK</span></b>
-          <small>MEMBERS AREA</small>
+          <small>PREMIUM TASK PLATFORM</small>
         </div>
       </div>
 
-      <h1>Welcome</h1>
-      <p>Create a local test account to enter the platform.</p>
 
-      <input
-        id="nameInput"
-        maxlength="18"
-        autocomplete="off"
-        placeholder="Enter username"
-      >
+      <!-- LOGIN -->
 
-      <button class="primary" onclick="login()">
-        ENTER ACCOUNT
+      <div id="loginBox">
+
+        <div class="page-heading">
+          <small>WELCOME BACK</small>
+          <h1>შესვლა</h1>
+          <p>შედი შენს ანგარიშზე გასაგრძელებლად.</p>
+        </div>
+
+        <input
+          id="loginEmail"
+          type="text"
+          placeholder="ელფოსტა ან მომხმარებელი"
+          autocomplete="username"
+        >
+
+        <input
+          id="loginPassword"
+          type="password"
+          placeholder="პაროლი"
+          autocomplete="current-password"
+        >
+
+        <button
+          class="primary"
+          onclick="loginUser()">
+          შესვლა
+        </button>
+
+        <p style="text-align:center;margin-top:20px">
+          ანგარიში არ გაქვს?
+          <button
+            onclick="showRegister()"
+            style="
+              background:none;
+              border:0;
+              color:#d9b65a;
+              font-weight:700;
+            ">
+            რეგისტრაცია
+          </button>
+        </p>
+
+      </div>
+
+
+      <!-- REGISTER -->
+
+      <div id="registerBox" style="display:none">
+
+        <div class="page-heading">
+          <small>CREATE ACCOUNT</small>
+          <h1>რეგისტრაცია</h1>
+          <p>შექმენი შენი ანგარიში რამდენიმე წამში.</p>
+        </div>
+
+
+        <input
+          id="registerName"
+          type="text"
+          placeholder="მომხმარებლის სახელი"
+          autocomplete="username"
+        >
+
+        <input
+          id="registerEmail"
+          type="email"
+          placeholder="ელფოსტა"
+          autocomplete="email"
+        >
+
+        <input
+          id="registerPassword"
+          type="password"
+          placeholder="პაროლი"
+          autocomplete="new-password"
+        >
+
+        <input
+          id="registerPassword2"
+          type="password"
+          placeholder="გაიმეორე პაროლი"
+          autocomplete="new-password"
+        >
+
+
+        <!-- REFERRAL -->
+
+        <div style="
+          margin:8px 0 8px;
+          color:#8b7744;
+          font-size:8px;
+          font-weight:700;
+          letter-spacing:1.6px;
+        ">
+          INVITATION CODE
+        </div>
+
+        <input
+          id="referralCode"
+          type="text"
+          placeholder="მოწვევის კოდი — სურვილისამებრ"
+          autocomplete="off"
+        >
+
+        <p style="
+          margin:-2px 0 15px;
+          color:#55544e;
+          font-size:9px;
+          line-height:1.5;
+        ">
+          ტესტირების რეჟიმში ნებისმიერი კოდი მიიღება.
+        </p>
+
+
+        <button
+          class="primary"
+          onclick="registerUser()">
+          ანგარიშის შექმნა
+        </button>
+
+
+        <p style="text-align:center;margin-top:20px">
+          უკვე გაქვს ანგარიში?
+          <button
+            onclick="showLogin()"
+            style="
+              background:none;
+              border:0;
+              color:#d9b65a;
+              font-weight:700;
+            ">
+            შესვლა
+          </button>
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ================= MAIN SITE ================= -->
+
+  <section id="mainPage" class="page">
+
+    <header class="topbar">
+
+      <div class="brand">
+
+        <div class="brand-mark">G</div>
+
+        <div>
+          <b>GOLD<span>TASK</span></b>
+          <small>PREMIUM TASK PLATFORM</small>
+        </div>
+
+      </div>
+
+
+      <div class="top-balance">
+
+        <small>BALANCE</small>
+
+        <strong>
+          $<span id="topBalance">0.00</span>
+        </strong>
+
+      </div>
+
+    </header>
+
+
+    <main>
+
+
+      <!-- ================= HOME ================= -->
+
+      <section
+        id="homePage"
+        class="page active">
+
+        <div class="hero">
+
+          <small>MEMBER DASHBOARD</small>
+
+          <h1>
+            გამარჯობა,
+            <span id="userName">Member</span>
+          </h1>
+
+          <p>
+            შეასრულე ხელმისაწვდომი დავალებები
+            და დააგროვე ბალანსი.
+          </p>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+
+            <span>BALANCE</span>
+
+            <b>
+              $<span id="balance">0.00</span>
+            </b>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span>TODAY'S TASKS</span>
+
+            <b>
+              <span id="tasksDone">0</span>
+              <i>/</i>
+              <span id="tasksTotal">3</span>
+            </b>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span>VIP LEVEL</span>
+
+            <b>
+              VIP <span id="currentVip">1</span>
+            </b>
+
+          </div>
+
+        </div>
+
+
+        <div class="section-title">
+
+          <div>
+            <small>DAILY EARNINGS</small>
+            <h2>დღევანდელი დავალებები</h2>
+          </div>
+
+          <span>
+            <span id="remainingTasks">3</span>
+            დარჩა
+          </span>
+
+        </div>
+
+
+        <div id="tasks"></div>
+
+
+        <div class="notice">
+
+          <div class="notice-icon">◆</div>
+
+          <div>
+            <b>დავალებების სისტემა</b>
+
+            <p>
+              დავალების დაწყების შემდეგ
+              ავტომატურად შესრულდება.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================= VIP ================= -->
+
+      <section
+        id="vipPage"
+        class="page">
+
+        <div class="page-heading">
+
+          <small>MEMBERSHIP</small>
+
+          <h1>VIP დონეები</h1>
+
+          <p>
+            აირჩიე შენთვის სასურველი წევრობის დონე.
+          </p>
+
+        </div>
+
+
+        <div
+          id="vipList"
+          class="vip-list">
+        </div>
+
+      </section>
+
+
+      <!-- ================= WALLET ================= -->
+
+      <section
+        id="walletPage"
+        class="page">
+
+        <div class="page-heading">
+
+          <small>FINANCIAL CENTER</small>
+
+          <h1>Wallet</h1>
+
+          <p>
+            შენი ანგარიშის ბალანსი და ტრანზაქციები.
+          </p>
+
+        </div>
+
+
+        <div class="wallet-card">
+
+          <small>AVAILABLE BALANCE</small>
+
+          <strong>
+            $<span id="walletBalance">0.00</span>
+          </strong>
+
+          <div class="wallet-actions">
+
+            <button
+              onclick="openDeposit()">
+              DEPOSIT
+            </button>
+
+            <button
+              onclick="openWithdraw()">
+              WITHDRAW
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <br>
+
+
+        <div class="section-title">
+
+          <div>
+            <small>ACCOUNT ACTIVITY</small>
+            <h2>ტრანზაქციები</h2>
+          </div>
+
+        </div>
+
+
+        <div
+          id="transactions"
+          class="transactions">
+        </div>
+
+      </section>
+
+
+      <!-- ================= REFERRAL ================= -->
+
+      <section
+        id="referralPage"
+        class="page">
+
+        <div class="page-heading">
+
+          <small>INVITE & EARN</small>
+
+          <h1>რეფერალები</h1>
+
+          <p>
+            შენი მოწვევის კოდი და სტატისტიკა.
+          </p>
+
+        </div>
+
+
+        <div class="ref-card">
+
+          <small>YOUR INVITATION CODE</small>
+
+          <div class="ref-code">
+
+            <strong id="myReferralCode">
+              GOLDUSER
+            </strong>
+
+            <button
+              onclick="copyReferral()">
+              COPY
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="ref-stats">
+
+          <div>
+
+            <small>REFERRALS</small>
+
+            <b id="refCount">0</b>
+
+          </div>
+
+
+          <div>
+
+            <small>REFERRAL EARNINGS</small>
+
+            <b>
+              $<span id="refEarnings">0.00</span>
+            </b>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <!-- ================= BOTTOM NAV ================= -->
+
+    <nav class="bottom-nav">
+
+      <button
+        class="nav active"
+        onclick="openPage('homePage',this)">
+
+        <span>⌂</span>
+        <small>HOME</small>
+
+      </button>
+
+
+      <button
+        class="nav"
+        onclick="openPage('vipPage',this)">
+
+        <span>◆</span>
+        <small>VIP</small>
+
+      </button>
+
+
+      <button
+        class="nav"
+        onclick="openPage('walletPage',this)">
+
+        <span>◇</span>
+        <small>WALLET</small>
+
+      </button>
+
+
+      <button
+        class="nav"
+        onclick="openPage('referralPage',this)">
+
+        <span>♢</span>
+        <small>REFERRAL</small>
+
+      </button>
+
+    </nav>
+
+  </section>
+
+</div>
+
+
+<!-- ================= DEPOSIT MODAL ================= -->
+
+<div
+  id="depositModal"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <div>
+        <small>ACCOUNT</small>
+        <h2>Deposit</h2>
+      </div>
+
+      <button
+        class="close"
+        onclick="closeModal('depositModal')">
+        ×
       </button>
 
     </div>
+
+
+    <div class="modal-info">
+      დეპოზიტის ფუნქცია ამ ეტაპზე
+      ინტერფეისის სახით არის მომზადებული.
+      რეალური გადახდის პროვაიდერი მოგვიანებით
+      ცალკე უსაფრთხოდ უნდა დაემატოს.
+    </div>
+
+    <input
+      id="depositAmount"
+      type="number"
+      min="1"
+      step="0.01"
+      placeholder="თანხა USD">
+
+    <button
+      class="primary"
+      onclick="demoDeposit()">
+      CONTINUE
+    </button>
 
   </div>
 
 </div>
 
-<script src="app.js"></script>
+
+<!-- ================= WITHDRAW MODAL ================= -->
+
+<div
+  id="withdrawModal"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <div>
+        <small>ACCOUNT</small>
+        <h2>Withdraw</h2>
+      </div>
+
+      <button
+        class="close"
+        onclick="closeModal('withdrawModal')">
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-info">
+      მიუთითე თანხა, რომლის გატანაც გინდა.
+      რეალური payout სისტემა მოგვიანებით
+      დაემატება შესაბამისი გადახდის პროვაიდერით.
+    </div>
+
+    <input
+      id="withdrawAmount"
+      type="number"
+      min="1"
+      step="0.01"
+      placeholder="თანხა USD">
+
+    <button
+      class="primary"
+      onclick="demoWithdraw()">
+      REQUEST WITHDRAWAL
+    </button>
+
+  </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
 </body>
 </html>
