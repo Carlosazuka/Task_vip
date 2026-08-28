@@ -6,339 +6,7 @@
 
 <title>TaskVIP</title>
 
-<style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  min-height:100%;
-  background:#080b14;
-  color:#fff;
-  font-family:Arial,sans-serif;
-  overflow-x:hidden;
-  touch-action:pan-y;
-}
-
-body{
-  min-height:100vh;
-}
-
-.app{
-  width:100%;
-  max-width:520px;
-  min-height:100vh;
-  margin:auto;
-  padding-bottom:90px;
-}
-
-/* HEADER */
-
-.header{
-  padding:25px 20px 15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.logo{
-  font-size:25px;
-  font-weight:900;
-}
-
-.logo span{
-  color:#7c6cff;
-}
-
-.balance{
-  background:#151a2b;
-  border:1px solid #282f49;
-  padding:9px 13px;
-  border-radius:12px;
-  font-weight:bold;
-}
-
-/* WELCOME */
-
-.welcome{
-  padding:15px 20px;
-}
-
-.welcome h1{
-  margin:0 0 7px;
-  font-size:29px;
-}
-
-.welcome p{
-  margin:0;
-  color:#8992ae;
-}
-
-/* VIP CARD */
-
-.vip-card{
-  margin:15px 20px;
-  padding:20px;
-  border-radius:22px;
-  background:
-    linear-gradient(135deg,#272052,#151a35);
-  border:1px solid #40376d;
-  position:relative;
-  overflow:hidden;
-}
-
-.vip-card:after{
-  content:"";
-  position:absolute;
-  width:150px;
-  height:150px;
-  right:-60px;
-  top:-60px;
-  background:#7566ff33;
-  border-radius:50%;
-}
-
-.vip-title{
-  color:#a8a0ff;
-  font-size:13px;
-  font-weight:bold;
-  letter-spacing:1px;
-}
-
-.vip-level{
-  font-size:30px;
-  font-weight:900;
-  margin-top:5px;
-}
-
-.vip-btn{
-  margin-top:15px;
-  border:0;
-  background:#7768ff;
-  color:#fff;
-  padding:11px 17px;
-  border-radius:12px;
-  font-weight:bold;
-}
-
-/* TASKS */
-
-.section{
-  padding:10px 20px;
-}
-
-.section-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:12px;
-}
-
-.section-title h2{
-  margin:0;
-  font-size:20px;
-}
-
-.task-count{
-  color:#8d96b1;
-  font-size:13px;
-}
-
-.task{
-  background:#111625;
-  border:1px solid #252c42;
-  border-radius:18px;
-  padding:17px;
-  margin-bottom:11px;
-  display:flex;
-  align-items:center;
-  gap:13px;
-}
-
-.task-icon{
-  width:45px;
-  height:45px;
-  border-radius:13px;
-  background:#202640;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:22px;
-}
-
-.task-info{
-  flex:1;
-}
-
-.task-name{
-  font-weight:bold;
-  margin-bottom:5px;
-}
-
-.task-reward{
-  color:#65dca0;
-  font-size:13px;
-}
-
-.task button{
-  border:0;
-  background:#6255ed;
-  color:white;
-  border-radius:11px;
-  padding:10px 13px;
-  font-weight:bold;
-}
-
-.task button:disabled{
-  opacity:.45;
-}
-
-/* PROGRESS */
-
-.progress{
-  height:7px;
-  background:#20263a;
-  border-radius:20px;
-  overflow:hidden;
-  margin-top:15px;
-}
-
-.progress-bar{
-  width:0%;
-  height:100%;
-  background:#7566ff;
-  transition:.3s;
-}
-
-/* BOTTOM NAV */
-
-.nav{
-  position:fixed;
-  left:50%;
-  bottom:0;
-  transform:translateX(-50%);
-  width:100%;
-  max-width:520px;
-  height:72px;
-  background:#0d111eF5;
-  border-top:1px solid #242b40;
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  backdrop-filter:blur(15px);
-  z-index:20;
-}
-
-.nav button{
-  border:0;
-  background:none;
-  color:#747d98;
-  font-size:11px;
-  font-weight:bold;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:5px;
-}
-
-.nav button span{
-  font-size:21px;
-}
-
-.nav button.active{
-  color:#8b7dff;
-}
-
-/* NOTICE */
-
-.notice{
-  margin:10px 20px;
-  padding:14px;
-  background:#101626;
-  border:1px solid #252d43;
-  border-radius:15px;
-  color:#8f98b2;
-  font-size:12px;
-  line-height:1.5;
-}
-
-/* MODAL */
-
-.modal{
-  position:fixed;
-  inset:0;
-  background:#0009;
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-  z-index:50;
-}
-
-.modal.show{
-  display:flex;
-}
-
-.modal-box{
-  width:100%;
-  max-width:520px;
-  background:#111625;
-  border:1px solid #2a3249;
-  border-radius:25px 25px 0 0;
-  padding:25px 20px;
-}
-
-.modal-box h2{
-  margin-top:0;
-}
-
-.vip-option{
-  padding:16px;
-  background:#181e30;
-  border:1px solid #29314a;
-  border-radius:15px;
-  margin:9px 0;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.vip-option button{
-  border:0;
-  background:#695cf0;
-  color:white;
-  padding:9px 13px;
-  border-radius:10px;
-  font-weight:bold;
-}
-
-.close{
-  width:100%;
-  margin-top:10px;
-  padding:14px;
-  border:0;
-  border-radius:13px;
-  background:#252c42;
-  color:white;
-  font-weight:bold;
-}
-
-/* DESKTOP */
-
-@media(min-width:700px){
-  body{
-    background:#05070d;
-  }
-
-  .app{
-    background:#080b14;
-    min-height:100vh;
-  }
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -346,357 +14,166 @@ body{
 <div class="app">
 
   <header class="header">
-    <div class="logo">
-      TASK<span>VIP</span>
-    </div>
-
-    <div class="balance">
-      $<span id="balance">0.00</span>
-    </div>
+    <div class="logo">TASK<span>VIP</span></div>
+    <div class="balance">$<span id="balance">0.00</span></div>
   </header>
 
+  <main>
 
-  <section class="welcome">
-    <h1>Hello, <span id="username">Guest</span> 👋</h1>
-    <p>Complete your daily tasks.</p>
-  </section>
+    <section class="welcome">
+      <p class="small">WELCOME BACK</p>
+      <h1>Hello, <span id="username">Guest</span> 👋</h1>
+      <p class="muted">Complete your daily tasks.</p>
+    </section>
 
-
-  <section class="vip-card">
-
-    <div class="vip-title">
-      CURRENT MEMBERSHIP
-    </div>
-
-    <div class="vip-level">
-      VIP <span id="vipLevel">0</span>
-    </div>
-
-    <button class="vip-btn" onclick="openVIP()">
-      VIEW VIP
-    </button>
-
-  </section>
-
-
-  <section class="section">
-
-    <div class="section-title">
-      <h2>Daily Tasks</h2>
-
-      <div class="task-count">
-        <span id="completed">0</span> / 3
-      </div>
-    </div>
-
-
-    <div class="task">
-
-      <div class="task-icon">⚡</div>
-
-      <div class="task-info">
-        <div class="task-name">
-          Daily Task #1
-        </div>
-
-        <div class="task-reward">
-          Demo reward
-        </div>
+    <section class="vip-card">
+      <div>
+        <p class="vip-label">MEMBERSHIP</p>
+        <h2>VIP <span id="vipLevel">0</span></h2>
       </div>
 
-      <button onclick="completeTask(1)" id="task1">
-        START
+      <button class="vip-button" id="openVip">
+        VIEW VIP
       </button>
+    </section>
 
-    </div>
+    <section class="tasks-section">
 
-
-    <div class="task">
-
-      <div class="task-icon">🎯</div>
-
-      <div class="task-info">
-        <div class="task-name">
-          Daily Task #2
-        </div>
-
-        <div class="task-reward">
-          Demo reward
-        </div>
+      <div class="section-header">
+        <h2>Daily Tasks</h2>
+        <span id="taskCounter">0 / 3</span>
       </div>
 
-      <button onclick="completeTask(2)" id="task2">
-        START
-      </button>
-
-    </div>
-
-
-    <div class="task">
-
-      <div class="task-icon">🚀</div>
-
-      <div class="task-info">
-        <div class="task-name">
-          Daily Task #3
+      <div class="task" data-task="1">
+        <div class="task-icon">⚡</div>
+        <div class="task-info">
+          <strong>Daily Task #1</strong>
+          <span>Complete task</span>
         </div>
-
-        <div class="task-reward">
-          Demo reward
-        </div>
+        <button class="task-button">START</button>
       </div>
 
-      <button onclick="completeTask(3)" id="task3">
-        START
-      </button>
+      <div class="task" data-task="2">
+        <div class="task-icon">🎯</div>
+        <div class="task-info">
+          <strong>Daily Task #2</strong>
+          <span>Complete task</span>
+        </div>
+        <button class="task-button">START</button>
+      </div>
 
-    </div>
+      <div class="task" data-task="3">
+        <div class="task-icon">🚀</div>
+        <div class="task-info">
+          <strong>Daily Task #3</strong>
+          <span>Complete task</span>
+        </div>
+        <button class="task-button">START</button>
+      </div>
 
+      <div class="progress">
+        <div id="progressBar"></div>
+      </div>
 
-    <div class="progress">
-      <div
-        class="progress-bar"
-        id="progress"
-      ></div>
-    </div>
+    </section>
 
-  </section>
+    <section class="notice">
+      🔒 Tasks require an active VIP membership.
+    </section>
 
-
-  <div class="notice">
-    🔒 Tasks are currently available only to VIP members.
-  </div>
+  </main>
 
 </div>
 
 
-<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
 
-<nav class="nav">
-
-  <button class="active">
-    <span>🏠</span>
-    Home
+  <button class="nav-item active">
+    <span>⌂</span>
+    <small>Home</small>
   </button>
 
-  <button onclick="openVIP()">
-    <span>👑</span>
-    VIP
+  <button class="nav-item" id="navVip">
+    <span>♛</span>
+    <small>VIP</small>
   </button>
 
-  <button>
-    <span>💰</span>
-    Deposit
+  <button class="nav-item">
+    <span>＋</span>
+    <small>Deposit</small>
   </button>
 
-  <button>
-    <span>💸</span>
-    Withdraw
+  <button class="nav-item">
+    <span>↗</span>
+    <small>Withdraw</small>
   </button>
 
-  <button>
-    <span>👥</span>
-    Referral
+  <button class="nav-item">
+    <span>♧</span>
+    <small>Referral</small>
   </button>
 
 </nav>
 
 
-<!-- VIP MODAL -->
-
-<div
-  class="modal"
-  id="vipModal"
-  onclick="closeOutside(event)"
->
+<div class="modal" id="vipModal">
 
   <div class="modal-box">
 
-    <h2>VIP Membership</h2>
-
-    <div class="vip-option">
-      <div>
-        <b>VIP 1</b><br>
-        <small>$2</small>
-      </div>
-
-      <button>SELECT</button>
+    <div class="modal-header">
+      <h2>VIP Membership</h2>
+      <button id="closeVip">×</button>
     </div>
 
-    <div class="vip-option">
-      <div>
-        <b>VIP 2</b><br>
-        <small>$12</small>
+    <div class="vip-list">
+
+      <div class="vip-option">
+        <div>
+          <strong>VIP 1</strong>
+          <span>$2</span>
+        </div>
+        <button>SELECT</button>
       </div>
 
-      <button>SELECT</button>
-    </div>
-
-    <div class="vip-option">
-      <div>
-        <b>VIP 3</b><br>
-        <small>$30</small>
+      <div class="vip-option">
+        <div>
+          <strong>VIP 2</strong>
+          <span>$12</span>
+        </div>
+        <button>SELECT</button>
       </div>
 
-      <button>SELECT</button>
-    </div>
-
-    <div class="vip-option">
-      <div>
-        <b>VIP 4</b><br>
-        <small>$60</small>
+      <div class="vip-option">
+        <div>
+          <strong>VIP 3</strong>
+          <span>$30</span>
+        </div>
+        <button>SELECT</button>
       </div>
 
-      <button>SELECT</button>
-    </div>
-
-    <div class="vip-option">
-      <div>
-        <b>VIP 5</b><br>
-        <small>$120</small>
+      <div class="vip-option">
+        <div>
+          <strong>VIP 4</strong>
+          <span>$60</span>
+        </div>
+        <button>SELECT</button>
       </div>
 
-      <button>SELECT</button>
-    </div>
+      <div class="vip-option">
+        <div>
+          <strong>VIP 5</strong>
+          <span>$120</span>
+        </div>
+        <button>SELECT</button>
+      </div>
 
-    <button
-      class="close"
-      onclick="closeVIP()"
-    >
-      CLOSE
-    </button>
+    </div>
 
   </div>
 
 </div>
 
-
-<script>
-
-/* =========================
-   DEMO STATE
-========================= */
-
-let completedTasks = 0;
-
-let balance = 0;
-
-
-/* =========================
-   VIP
-========================= */
-
-function openVIP(){
-
-  document
-    .getElementById("vipModal")
-    .classList.add("show");
-
-}
-
-
-function closeVIP(){
-
-  document
-    .getElementById("vipModal")
-    .classList.remove("show");
-
-}
-
-
-function closeOutside(event){
-
-  if(
-    event.target.id === "vipModal"
-  ){
-
-    closeVIP();
-
-  }
-
-}
-
-
-/* =========================
-   TASK
-========================= */
-
-function completeTask(number){
-
-  const button =
-    document.getElementById(
-      "task"+number
-    );
-
-  if(
-    button.disabled
-  ) return;
-
-
-  button.disabled=true;
-
-  let seconds=3;
-
-  button.textContent =
-    seconds;
-
-
-  const timer =
-    setInterval(()=>{
-
-      seconds--;
-
-      if(seconds>0){
-
-        button.textContent =
-          seconds;
-
-      }else{
-
-        clearInterval(timer);
-
-        button.textContent =
-          "✓ DONE";
-
-        completedTasks++;
-
-        document
-          .getElementById("completed")
-          .textContent =
-          completedTasks;
-
-        document
-          .getElementById("progress")
-          .style.width =
-          (completedTasks/3*100)+"%";
-
-      }
-
-    },1000);
-
-}
-
-
-/* =========================
-   USERNAME
-========================= */
-
-const savedName =
-localStorage.getItem(
-  "taskvip_username"
-);
-
-
-if(savedName){
-
-  document
-    .getElementById("username")
-    .textContent =
-    savedName;
-
-}
-
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
