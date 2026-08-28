@@ -1,441 +1,722 @@
+/* =========================================================
+   GOLDTASK — SCRIPT
+   TEST / FRONTEND VERSION
+========================================================= */
+
 "use strict";
 
-/*
-  INTERNAL TEST ACCOUNT
-  No real payments are connected.
-*/
+/* =========================================================
+   VIP PLANS
+========================================================= */
 
-const VIPS = [
-  { level:1,  price:4,   tasks:1,  reward:.20 },
-  { level:2,  price:10,  tasks:2,  reward:.22 },
-  { level:3,  price:20,  tasks:3,  reward:.24 },
-  { level:4,  price:35,  tasks:4,  reward:.26 },
-  { level:5,  price:55,  tasks:5,  reward:.28 },
-  { level:6,  price:80,  tasks:6,  reward:.30 },
-  { level:7,  price:110, tasks:7,  reward:.32 },
-  { level:8,  price:150, tasks:8,  reward:.34 },
-  { level:9,  price:200, tasks:9,  reward:.36 },
-  { level:10, price:275, tasks:10, reward:.38 }
+const VIP_PLANS = [
+  { level: 1, price: 4, tasks: 1, reward: 0.20 },
+  { level: 2, price: 10, tasks: 2, reward: 0.25 },
+  { level: 3, price: 20, tasks: 3, reward: 0.30 },
+  { level: 4, price: 35, tasks: 4, reward: 0.35 },
+  { level: 5, price: 55, tasks: 5, reward: 0.40 },
+  { level: 6, price: 80, tasks: 6, reward: 0.50 },
+  { level: 7, price: 120, tasks: 7, reward: 0.60 },
+  { level: 8, price: 180, tasks: 8, reward: 0.70 },
+  { level: 9, price: 260, tasks: 9, reward: 0.80 },
+  { level: 10, price: 350, tasks: 10, reward: 1.00 }
 ];
 
 
-let user = JSON.parse(
-  localStorage.getItem("goldtask_user") || "null"
-);
+/* =========================================================
+   STORAGE
+========================================================= */
 
-let transactions = JSON.parse(
-  localStorage.getItem("goldtask_transactions") || "[]"
-);
+const STORAGE_KEY = "goldtask_user";
 
-let selectedWalletAction = null;
+let user = loadUser();
 
 
-/* =========================
-   ELEMENTS
-========================= */
+function loadUser() {
 
-const balanceEl =
-  document.getElementById("balance");
+  try {
 
-const walletBalanceEl =
-  document.getElementById("walletBalance");
+    const saved = localStorage.getItem(STORAGE_KEY);
 
-const usernameEl =
-  document.getElementById("username");
+    if (!saved) return null;
 
-const vipLevelEl =
-  document.getElementById("vipLevel");
+    return JSON.parse(saved);
 
-const taskCountEl =
-  document.getElementById("taskCount");
+  } catch (error) {
 
-const taskLimitEl =
-  document.getElementById("taskLimit");
+    console.error("Storage error:", error);
 
-const refCountEl =
-  document.getElementById("refCount");
-
-const refCodeEl =
-  document.getElementById("refCode");
-
-const refBigEl =
-  document.getElementById("referralsBig");
-
-const refEarnEl =
-  document.getElementById("refEarnings");
-
-const tasksEl =
-  document.getElementById("tasks");
-
-const vipListEl =
-  document.getElementById("vipList");
-
-const transactionsEl =
-  document.getElementById("transactions");
-
-const statusEl =
-  document.getElementById("accountStatus");
+    return null;
+  }
+}
 
 
-/* =========================
-   SAVE
-========================= */
+function saveUser() {
 
-function save(){
+  if (!user) return;
 
   localStorage.setItem(
-    "goldtask_user",
+    STORAGE_KEY,
     JSON.stringify(user)
   );
-
-  localStorage.setItem(
-    "goldtask_transactions",
-    JSON.stringify(transactions)
-  );
-
 }
 
 
-/* =========================
+/* =========================================================
+   CREATE USER
+========================================================= */
+
+function createUser(name, email, password, referral) {
+
+  const code =
+    "GOLD" +
+    Math.random()
+      .toString(36)
+      .substring(2, 8)
+      .toUpperCase();
+
+  return {
+
+    name,
+    email,
+    password,
+
+    referralUsed:
+      referral || "",
+
+    referralCode:
+      code,
+
+    vip: 1,
+
+    balance: 0,
+
+    tasksDone: 0,
+
+    lastTaskDate:
+      getToday(),
+
+    transactions: [],
+
+    referrals: 0,
+
+    referralEarnings: 0
+
+  };
+}
+
+
+/* =========================================================
    DATE
-========================= */
+========================================================= */
 
-function today(){
+function getToday() {
 
-  const d = new Date();
+  const date = new Date();
 
-  return d.toISOString().slice(0,10);
-
+  return date.toISOString()
+    .split("T")[0];
 }
 
 
-/* =========================
+/* =========================================================
    DAILY RESET
-========================= */
+========================================================= */
 
-function prepareDaily(){
+function checkDailyReset() {
 
-  if(!user) return;
+  if (!user) return;
 
-  if(user.taskDate !== today()){
+  const today = getToday();
 
-    user.taskDate = today();
+  if (user.lastTaskDate !== today) {
 
-    user.completed = 0;
+    user.tasksDone = 0;
 
-    save();
+    user.lastTaskDate = today;
 
+    saveUser();
   }
-
 }
 
 
-/* =========================
-   LOGIN
-========================= */
+/* =========================================================
+   AUTH
+========================================================= */
 
-function login(){
+function showRegister() {
 
-  const input =
-    document.getElementById("nameInput");
+  const login =
+    document.getElementById("loginBox");
+
+  const register =
+    document.getElementById("registerBox");
+
+  if (login)
+    login.style.display = "none";
+
+  if (register)
+    register.style.display = "block";
+}
+
+
+function showLogin() {
+
+  const login =
+    document.getElementById("loginBox");
+
+  const register =
+    document.getElementById("registerBox");
+
+  if (login)
+    login.style.display = "block";
+
+  if (register)
+    register.style.display = "none";
+}
+
+
+/* =========================================================
+   REGISTER
+========================================================= */
+
+function registerUser() {
 
   const name =
-    input.value.trim();
+    document.getElementById("registerName")
+      ?.value
+      .trim();
 
-  if(name.length < 3){
+  const email =
+    document.getElementById("registerEmail")
+      ?.value
+      .trim();
 
-    alert("Enter at least 3 characters.");
+  const password =
+    document.getElementById("registerPassword")
+      ?.value;
+
+  const password2 =
+    document.getElementById("registerPassword2")
+      ?.value;
+
+  const referral =
+    document.getElementById("referralCode")
+      ?.value
+      .trim();
+
+
+  if (!name) {
+
+    alert("შეიყვანე მომხმარებლის სახელი.");
 
     return;
-
   }
 
 
-  if(!user){
+  if (!email) {
 
-    user = {
+    alert("შეიყვანე ელფოსტა.");
 
-      id:
-        crypto.randomUUID(),
-
-      username:
-        name,
-
-      balance:
-        0,
-
-      vip:
-        0,
-
-      completed:
-        0,
-
-      taskDate:
-        today(),
-
-      referralCode:
-        makeReferral(),
-
-      referrals:
-        0,
-
-      referralEarnings:
-        0
-
-    };
-
-  }else{
-
-    user.username = name;
-
+    return;
   }
 
 
-  save();
+  if (!password) {
 
-  document
-    .getElementById("loginModal")
-    .classList.remove("show");
+    alert("შეიყვანე პაროლი.");
 
-  render();
-
-}
+    return;
+  }
 
 
-function makeReferral(){
+  if (password.length < 4) {
 
-  return Math.random()
-    .toString(36)
-    .substring(2,8)
-    .toUpperCase();
+    alert("პაროლი მინიმუმ 4 სიმბოლო უნდა იყოს.");
 
-}
+    return;
+  }
 
 
-/* =========================
-   RENDER USER
-========================= */
+  if (password !== password2) {
 
-function render(){
+    alert("პაროლები ერთმანეთს არ ემთხვევა.");
 
-  prepareDaily();
-
-  if(!user) return;
+    return;
+  }
 
 
-  usernameEl.textContent =
-    user.username;
-
-  balanceEl.textContent =
-    money(user.balance);
-
-  walletBalanceEl.textContent =
-    money(user.balance);
-
-  vipLevelEl.textContent =
-    user.vip;
-
-  refCountEl.textContent =
-    user.referrals;
-
-  refBigEl.textContent =
-    user.referrals;
-
-  refEarnEl.textContent =
-    money(user.referralEarnings);
-
-  refCodeEl.textContent =
-    user.referralCode;
+  /*
+    TEST MODE:
+    referral code is intentionally NOT validated.
+    Any value or empty field is accepted.
+  */
 
 
-  const membership =
-    VIPS.find(
-      v => v.level === user.vip
+  user =
+    createUser(
+      name,
+      email,
+      password,
+      referral
     );
 
 
-  const limit =
-    membership
-      ? membership.tasks
-      : 0;
+  saveUser();
+
+  enterSite();
+
+}
 
 
-  taskLimitEl.textContent =
-    limit;
+/* =========================================================
+   LOGIN
+========================================================= */
 
-  taskCountEl.textContent =
-    user.completed;
+function loginUser() {
+
+  const email =
+    document.getElementById("loginEmail")
+      ?.value
+      .trim();
+
+  const password =
+    document.getElementById("loginPassword")
+      ?.value;
 
 
-  if(user.vip){
+  if (!email || !password) {
 
-    statusEl.textContent =
-      `VIP ${user.vip} active. Your daily tasks are available.`;
+    alert("შეავსე ორივე ველი.");
 
-  }else{
-
-    statusEl.textContent =
-      "Select a membership to unlock tasks.";
-
+    return;
   }
 
+
+  /*
+    FRONTEND TEST LOGIN
+
+    If an account exists in localStorage,
+    credentials are checked.
+
+    If no account exists, a temporary
+    test account is created.
+  */
+
+
+  if (user) {
+
+    if (
+      (
+        user.email === email ||
+        user.name === email
+      ) &&
+      user.password === password
+    ) {
+
+      enterSite();
+
+      return;
+
+    }
+
+    alert("მომხმარებელი ან პაროლი არასწორია.");
+
+    return;
+  }
+
+
+  user =
+    createUser(
+      email,
+      email,
+      password,
+      ""
+    );
+
+
+  saveUser();
+
+  enterSite();
+}
+
+
+/* =========================================================
+   ENTER SITE
+========================================================= */
+
+function enterSite() {
+
+  checkDailyReset();
+
+  const auth =
+    document.getElementById("authPage");
+
+  const main =
+    document.getElementById("mainPage");
+
+
+  if (auth)
+    auth.classList.remove("active");
+
+  if (main)
+    main.classList.add("active");
+
+
+  updateUserInterface();
 
   renderTasks();
 
-  renderVIP();
+  renderVIPs();
 
   renderTransactions();
 
+  renderReferral();
 }
 
 
-/* =========================
-   MONEY
-========================= */
+/* =========================================================
+   LOGOUT
+========================================================= */
 
-function money(value){
+function logoutUser() {
 
-  return Number(value || 0)
-    .toFixed(2);
+  /*
+    Only leaves the current session.
+    The account remains stored.
+  */
 
+  const auth =
+    document.getElementById("authPage");
+
+  const main =
+    document.getElementById("mainPage");
+
+
+  if (main)
+    main.classList.remove("active");
+
+  if (auth)
+    auth.classList.add("active");
+
+  showLogin();
 }
 
 
-/* =========================
-   TASKS
-========================= */
+/* =========================================================
+   NAVIGATION
+========================================================= */
 
-function renderTasks(){
+function openPage(pageId, button) {
 
-  tasksEl.innerHTML = "";
-
-  const membership =
-    VIPS.find(
-      v => v.level === user.vip
+  const pages =
+    document.querySelectorAll(
+      "#mainPage main > .page"
     );
 
 
-  if(!membership){
+  pages.forEach(page => {
 
-    tasksEl.innerHTML = `
-      <div class="task">
-        <div class="task-number">—</div>
+    page.classList.remove("active");
 
-        <div class="task-info">
-          <b>Membership required</b>
-          <span>Select VIP to access daily tasks.</span>
-        </div>
-      </div>
-    `;
+  });
 
+
+  const target =
+    document.getElementById(pageId);
+
+  if (target)
+    target.classList.add("active");
+
+
+  document
+    .querySelectorAll(".bottom-nav .nav")
+    .forEach(nav => {
+
+      nav.classList.remove("active");
+
+    });
+
+
+  if (button)
+    button.classList.add("active");
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+/* =========================================================
+   USER UI
+========================================================= */
+
+function updateUserInterface() {
+
+  if (!user) return;
+
+
+  const balance =
+    Number(user.balance || 0)
+      .toFixed(2);
+
+
+  const vip =
+    Number(user.vip || 1);
+
+
+  const plan =
+    VIP_PLANS.find(
+      item => item.level === vip
+    ) || VIP_PLANS[0];
+
+
+  setText(
+    "userName",
+    user.name
+  );
+
+
+  setText(
+    "balance",
+    balance
+  );
+
+
+  setText(
+    "topBalance",
+    balance
+  );
+
+
+  setText(
+    "walletBalance",
+    balance
+  );
+
+
+  setText(
+    "currentVip",
+    vip
+  );
+
+
+  setText(
+    "tasksDone",
+    user.tasksDone
+  );
+
+
+  setText(
+    "tasksTotal",
+    plan.tasks
+  );
+
+
+  setText(
+    "remainingTasks",
+    Math.max(
+      plan.tasks - user.tasksDone,
+      0
+    )
+  );
+
+
+  setText(
+    "myReferralCode",
+    user.referralCode
+  );
+
+
+  setText(
+    "refCount",
+    user.referrals || 0
+  );
+
+
+  setText(
+    "refEarnings",
+    Number(
+      user.referralEarnings || 0
+    ).toFixed(2)
+  );
+}
+
+
+function setText(id, value) {
+
+  const element =
+    document.getElementById(id);
+
+  if (element)
+    element.textContent = value;
+}
+
+
+/* =========================================================
+   TASKS
+========================================================= */
+
+function renderTasks() {
+
+  const container =
+    document.getElementById("tasks");
+
+  if (!container || !user)
     return;
 
-  }
+
+  checkDailyReset();
 
 
-  for(
+  const plan =
+    VIP_PLANS.find(
+      item =>
+        item.level === Number(user.vip)
+    ) || VIP_PLANS[0];
+
+
+  container.innerHTML = "";
+
+
+  for (
     let i = 1;
-    i <= membership.tasks;
+    i <= plan.tasks;
     i++
-  ){
+  ) {
 
-    const done =
-      i <= user.completed;
+    const completed =
+      i <= user.tasksDone;
 
 
     const task =
       document.createElement("div");
 
-    task.className =
-      "task";
+    task.className = "task";
 
 
     task.innerHTML = `
 
       <div class="task-number">
-        ${String(i).padStart(2,"0")}
+        ${String(i).padStart(2, "0")}
       </div>
 
       <div class="task-info">
-        <b>Daily Task ${i}</b>
+
+        <b>
+          Daily Task ${i}
+        </b>
+
         <span>
-          Complete activity
-          ${done ? "• Completed" : "• Available"}
+          ${
+            completed
+              ? "დავალება შესრულებულია"
+              : "ხელმისაწვდომია შესრულებისთვის"
+          }
         </span>
+
       </div>
 
       <div class="task-reward">
-        +$${money(membership.reward)}
+        $${plan.reward.toFixed(2)}
       </div>
 
       <button
         class="task-btn"
-        ${done ? "disabled" : ""}
+        ${
+          completed
+            ? "disabled"
+            : ""
+        }
+        onclick="completeTask(${i}, this)"
       >
-        ${done ? "COMPLETED" : "START"}
+
+        ${
+          completed
+            ? "DONE"
+            : "START"
+        }
+
       </button>
+
     `;
 
 
-    const button =
-      task.querySelector(".task-btn");
-
-
-    if(!done){
-
-      button.addEventListener(
-        "click",
-        () => completeTask(button)
-      );
-
-    }
-
-
-    tasksEl.appendChild(task);
-
+    container.appendChild(task);
   }
 
+
+  updateUserInterface();
 }
 
 
-/* =========================
+/* =========================================================
    COMPLETE TASK
-========================= */
+========================================================= */
 
-function completeTask(button){
+function completeTask(
+  taskNumber,
+  button
+) {
 
-  if(!user.vip){
+  if (!user) return;
+
+
+  checkDailyReset();
+
+
+  const plan =
+    VIP_PLANS.find(
+      item =>
+        item.level === Number(user.vip)
+    ) || VIP_PLANS[0];
+
+
+  if (
+    user.tasksDone >= plan.tasks
+  ) {
 
     alert(
-      "Select a VIP membership first."
+      "დღევანდელი ყველა დავალება უკვე შესრულებულია."
     );
 
     return;
+  }
+
+
+  /*
+    Tasks must be completed in order.
+  */
+
+  if (
+    taskNumber !==
+    user.tasksDone + 1
+  ) {
+
+    alert(
+      "ჯერ წინა დავალება შეასრულე."
+    );
+
+    return;
+  }
+
+
+  if (button) {
+
+    button.disabled = true;
+
+    button.textContent = "WAIT...";
 
   }
 
 
-  const membership =
-    VIPS.find(
-      v => v.level === user.vip
-    );
-
-
-  if(
-    user.completed >= membership.tasks
-  ){
-
-    return;
-
-  }
-
-
-  button.disabled = true;
+  /*
+    3 SECOND TASK
+  */
 
   let seconds = 3;
-
-  button.textContent =
-    seconds;
 
 
   const timer =
@@ -443,174 +724,59 @@ function completeTask(button){
 
       seconds--;
 
-      if(seconds > 0){
-
+      if (button)
         button.textContent =
-          seconds;
+          `${seconds}s`;
 
-        return;
+      if (seconds <= 0) {
+
+        clearInterval(timer);
+
+        finishTask(
+          plan,
+          taskNumber,
+          button
+        );
 
       }
 
-
-      clearInterval(timer);
-
-
-      user.completed++;
-
-      user.balance =
-        Number(user.balance) +
-        Number(membership.reward);
-
-
-      transactions.unshift({
-
-        type:
-          "Task reward",
-
-        amount:
-          membership.reward,
-
-        date:
-          new Date().toLocaleString()
-
-      });
-
-
-      save();
-
-      render();
-
-    },1000);
-
+    }, 1000);
 }
 
 
-/* =========================
-   VIP
-========================= */
+/* =========================================================
+   FINISH TASK
+========================================================= */
 
-function renderVIP(){
+function finishTask(
+  plan,
+  taskNumber,
+  button
+) {
 
-  vipListEl.innerHTML = "";
-
-
-  VIPS.forEach(vip => {
-
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "vip-card" +
-      (user.vip === vip.level
-        ? " current"
-        : "");
+  user.tasksDone += 1;
 
 
-    card.innerHTML = `
-
-      <div class="vip-top">
-
-        <div class="vip-name">
-          VIP ${vip.level}
-        </div>
-
-        <div class="vip-price">
-          $${money(vip.price)}
-          <small> / level</small>
-        </div>
-
-      </div>
-
-      <div class="vip-details">
-
-        <div>
-          <span>Daily tasks</span>
-          <b>${vip.tasks}</b>
-        </div>
-
-        <div>
-          <span>Task credit</span>
-          <b>$${money(vip.reward)}</b>
-        </div>
-
-        <div>
-          <span>Status</span>
-          <b>
-            ${user.vip === vip.level
-              ? "ACTIVE"
-              : "AVAILABLE"}
-          </b>
-        </div>
-
-      </div>
-
-      <button
-        class="vip-select"
-        ${user.vip === vip.level ? "disabled" : ""}
-      >
-        ${
-          user.vip === vip.level
-            ? "CURRENT LEVEL"
-            : "SELECT LEVEL"
-        }
-      </button>
-    `;
+  const reward =
+    Number(plan.reward);
 
 
-    const button =
-      card.querySelector(".vip-select");
+  user.balance =
+    Number(user.balance || 0)
+    + reward;
 
 
-    if(user.vip !== vip.level){
-
-      button.addEventListener(
-        "click",
-        () => selectVIP(vip.level)
-      );
-
-    }
-
-
-    vipListEl.appendChild(card);
-
-  });
-
-}
-
-
-/* =========================
-   SELECT VIP
-========================= */
-
-function selectVIP(level){
-
-  const vip =
-    VIPS.find(
-      v => v.level === level
+  user.balance =
+    Number(
+      user.balance.toFixed(2)
     );
 
 
-  if(!vip) return;
+  user.transactions.unshift({
 
+    type: "Task reward",
 
-  user.vip =
-    level;
-
-  user.completed =
-    0;
-
-  user.taskDate =
-    today();
-
-
-  transactions.unshift({
-
-    type:
-      `VIP ${level} selected`,
-
-    amount:
-      0,
+    amount: reward,
 
     date:
       new Date().toLocaleString()
@@ -618,43 +784,258 @@ function selectVIP(level){
   });
 
 
-  save();
-
-  render();
-
-  showPage("homePage");
-
-}
+  saveUser();
 
 
-/* =========================
-   TRANSACTIONS
-========================= */
+  if (button) {
 
-function renderTransactions(){
+    button.textContent = "DONE";
 
-  if(!transactions.length){
-
-    transactionsEl.innerHTML = `
-      <div class="transaction">
-        <div>
-          <b>No transactions yet</b>
-          <small>Activity will appear here.</small>
-        </div>
-      </div>
-    `;
-
-    return;
+    button.disabled = true;
 
   }
 
 
-  transactionsEl.innerHTML = "";
+  updateUserInterface();
+
+  renderTasks();
+
+  renderTransactions();
+
+}
 
 
-  transactions
-    .slice(0,30)
-    .forEach(tx => {
+/* =========================================================
+   VIP
+========================================================= */
+
+function renderVIPs() {
+
+  const container =
+    document.getElementById("vipList");
+
+  if (!container)
+    return;
+
+
+  container.innerHTML = "";
+
+
+  VIP_PLANS.forEach(plan => {
+
+    const current =
+      Number(user?.vip || 1) ===
+      plan.level;
+
+
+    const card =
+      document.createElement("div");
+
+
+    card.className =
+      "vip-card" +
+      (
+        current
+          ? " current"
+          : ""
+      );
+
+
+    card.innerHTML = `
+
+      <div class="vip-top">
+
+        <div class="vip-name">
+          VIP ${plan.level}
+        </div>
+
+        <div class="vip-price">
+          $${plan.price}
+          <small>/ membership</small>
+        </div>
+
+      </div>
+
+
+      <div class="vip-details">
+
+        <div>
+          <span>Daily tasks</span>
+          <b>${plan.tasks}</b>
+        </div>
+
+        <div>
+          <span>Reward / task</span>
+          <b>$${plan.reward.toFixed(2)}</b>
+        </div>
+
+        <div>
+          <span>Status</span>
+          <b>
+            ${
+              current
+                ? "ACTIVE"
+                : "AVAILABLE"
+            }
+          </b>
+        </div>
+
+      </div>
+
+
+      <button
+        class="vip-select"
+        ${
+          current
+            ? "disabled"
+            : ""
+        }
+        onclick="selectVIP(${plan.level})"
+      >
+
+        ${
+          current
+            ? "CURRENT PLAN"
+            : "SELECT VIP " + plan.level
+        }
+
+      </button>
+
+    `;
+
+
+    container.appendChild(card);
+
+  });
+}
+
+
+/* =========================================================
+   SELECT VIP
+========================================================= */
+
+function selectVIP(level) {
+
+  if (!user) return;
+
+
+  const plan =
+    VIP_PLANS.find(
+      item => item.level === level
+    );
+
+
+  if (!plan) return;
+
+
+  if (level <= Number(user.vip)) {
+
+    alert(
+      "ეს VIP უკვე აქტიურია ან უფრო დაბალი დონეა."
+    );
+
+    return;
+  }
+
+
+  /*
+    TEST MODE:
+    VIP upgrade happens locally.
+    No real payment is processed.
+  */
+
+
+  user.vip = level;
+
+  user.tasksDone = 0;
+
+  user.lastTaskDate = getToday();
+
+
+  user.transactions.unshift({
+
+    type:
+      `VIP ${level} selected`,
+
+    amount: 0,
+
+    date:
+      new Date().toLocaleString()
+
+  });
+
+
+  saveUser();
+
+
+  updateUserInterface();
+
+  renderVIPs();
+
+  renderTasks();
+
+  renderTransactions();
+
+
+  alert(
+    `VIP ${level} გააქტიურდა ტესტირების რეჟიმში.`
+  );
+}
+
+
+/* =========================================================
+   TRANSACTIONS
+========================================================= */
+
+function renderTransactions() {
+
+  const container =
+    document.getElementById(
+      "transactions"
+    );
+
+  if (!container || !user)
+    return;
+
+
+  const list =
+    user.transactions || [];
+
+
+  if (!list.length) {
+
+    container.innerHTML = `
+
+      <div class="transaction">
+
+        <div>
+
+          <b>No transactions yet</b>
+
+          <small>
+            შენი აქტივობა აქ გამოჩნდება.
+          </small>
+
+        </div>
+
+        <div class="amount">
+          $0.00
+        </div>
+
+      </div>
+
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML = "";
+
+
+  list
+    .slice(0, 15)
+    .forEach(transaction => {
 
       const row =
         document.createElement("div");
@@ -663,336 +1044,431 @@ function renderTransactions(){
         "transaction";
 
 
+      const amount =
+        Number(
+          transaction.amount || 0
+        ).toFixed(2);
+
+
       row.innerHTML = `
 
         <div>
-          <b>${escapeHTML(tx.type)}</b>
-          <small>${escapeHTML(tx.date)}</small>
+
+          <b>
+            ${escapeHTML(
+              transaction.type
+            )}
+          </b>
+
+          <small>
+            ${escapeHTML(
+              transaction.date
+            )}
+          </small>
+
         </div>
 
         <div class="amount">
           ${
-            tx.amount > 0
-              ? "+$" + money(tx.amount)
-              : "—"
-          }
+            Number(amount) > 0
+              ? "+" 
+              : ""
+          }$${amount}
         </div>
+
       `;
 
 
-      transactionsEl.appendChild(row);
+      container.appendChild(row);
 
     });
-
 }
 
 
-/* =========================
-   WALLET
-========================= */
+/* =========================================================
+   REFERRAL
+========================================================= */
 
-function openWallet(type){
+function renderReferral() {
 
-  selectedWalletAction =
-    type;
-
-  const modal =
-    document.getElementById(
-      "walletModal"
-    );
-
-  const title =
-    document.getElementById(
-      "walletModalTitle"
-    );
-
-  const label =
-    document.getElementById(
-      "walletModalLabel"
-    );
-
-  const button =
-    document.getElementById(
-      "walletAction"
-    );
+  if (!user)
+    return;
 
 
-  if(type === "deposit"){
-
-    label.textContent =
-      "ACCOUNT";
-
-    title.textContent =
-      "Deposit";
-
-    button.textContent =
-      "ADD CREDITS";
-
-  }else{
-
-    label.textContent =
-      "ACCOUNT";
-
-    title.textContent =
-      "Withdraw";
-
-    button.textContent =
-      "REQUEST";
-
-  }
-
-
-  document
-    .getElementById("walletAmount")
-    .value = "";
-
-  modal.classList.add("show");
-
-}
-
-
-function closeWallet(){
-
-  document
-    .getElementById("walletModal")
-    .classList.remove("show");
-
-}
-
-
-document
-  .getElementById("walletAction")
-  .addEventListener(
-    "click",
-    walletAction
+  setText(
+    "myReferralCode",
+    user.referralCode
   );
 
 
-function walletAction(){
+  setText(
+    "refCount",
+    user.referrals || 0
+  );
+
+
+  setText(
+    "refEarnings",
+    Number(
+      user.referralEarnings || 0
+    ).toFixed(2)
+  );
+}
+
+
+function copyReferral() {
+
+  if (!user) return;
+
+
+  const code =
+    user.referralCode;
+
+
+  if (
+    navigator.clipboard &&
+    navigator.clipboard.writeText
+  ) {
+
+    navigator.clipboard
+      .writeText(code)
+      .then(() => {
+
+        alert(
+          "მოწვევის კოდი დაკოპირდა."
+        );
+
+      })
+      .catch(() => {
+
+        fallbackCopy(code);
+
+      });
+
+  } else {
+
+    fallbackCopy(code);
+
+  }
+}
+
+
+function fallbackCopy(text) {
+
+  const input =
+    document.createElement("textarea");
+
+  input.value = text;
+
+  document.body.appendChild(input);
+
+  input.select();
+
+  document.execCommand("copy");
+
+  input.remove();
+
+  alert(
+    "მოწვევის კოდი დაკოპირდა."
+  );
+}
+
+
+/* =========================================================
+   WALLET MODALS
+========================================================= */
+
+function openDeposit() {
+
+  const modal =
+    document.getElementById(
+      "depositModal"
+    );
+
+  if (modal)
+    modal.classList.add("show");
+}
+
+
+function openWithdraw() {
+
+  const modal =
+    document.getElementById(
+      "withdrawModal"
+    );
+
+  if (modal)
+    modal.classList.add("show");
+}
+
+
+function closeModal(id) {
+
+  const modal =
+    document.getElementById(id);
+
+  if (modal)
+    modal.classList.remove("show");
+}
+
+
+/* =========================================================
+   DEMO DEPOSIT
+========================================================= */
+
+function demoDeposit() {
 
   const input =
     document.getElementById(
-      "walletAmount"
+      "depositAmount"
     );
 
+
   const amount =
-    Number(input.value);
+    Number(input?.value);
 
 
-  if(!amount || amount <= 0){
+  if (
+    !amount ||
+    amount <= 0
+  ) {
 
-    alert("Enter a valid amount.");
+    alert(
+      "შეიყვანე თანხა."
+    );
 
     return;
-
   }
 
 
   /*
-    No real payment is processed.
-    This is only account testing.
+    This is a local testing balance only.
   */
 
-  if(
-    selectedWalletAction ===
-    "deposit"
-  ){
-
-    user.balance += amount;
-
-    transactions.unshift({
-
-      type:
-        "Account credit",
-
-      amount:
-        amount,
-
-      date:
-        new Date().toLocaleString()
-
-    });
-
-  }else{
-
-    if(amount > user.balance){
-
-      alert(
-        "Insufficient account balance."
-      );
-
-      return;
-
-    }
+  user.balance =
+    Number(user.balance || 0)
+    + amount;
 
 
-    user.balance -= amount;
-
-    transactions.unshift({
-
-      type:
-        "Withdrawal test",
-
-      amount:
-        -amount,
-
-      date:
-        new Date().toLocaleString()
-
-    });
-
-  }
-
-
-  save();
-
-  closeWallet();
-
-  render();
-
-}
-
-
-/* =========================
-   REFERRAL
-========================= */
-
-function copyReferral(){
-
-  if(!user) return;
-
-
-  navigator.clipboard
-    .writeText(user.referralCode)
-    .then(() => {
-
-      alert(
-        "Referral code copied."
-      );
-
-    })
-    .catch(() => {
-
-      alert(
-        user.referralCode
-      );
-
-    });
-
-}
-
-
-/* =========================
-   NAVIGATION
-========================= */
-
-document
-  .querySelectorAll(".nav")
-  .forEach(button => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        showPage(
-          button.dataset.page
-        );
-
-      }
+  user.balance =
+    Number(
+      user.balance.toFixed(2)
     );
+
+
+  user.transactions.unshift({
+
+    type:
+      "Test balance credit",
+
+    amount,
+
+    date:
+      new Date().toLocaleString()
 
   });
 
 
-function showPage(pageId){
-
-  document
-    .querySelectorAll(".page")
-    .forEach(page => {
-
-      page.classList.remove(
-        "active"
-      );
-
-    });
+  saveUser();
 
 
-  document
-    .getElementById(pageId)
-    .classList.add(
-      "active"
-    );
+  if (input)
+    input.value = "";
 
 
-  document
-    .querySelectorAll(".nav")
-    .forEach(nav => {
-
-      nav.classList.toggle(
-        "active",
-        nav.dataset.page === pageId
-      );
-
-    });
-
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-}
-
-
-/* =========================
-   DATE
-========================= */
-
-document
-  .getElementById("taskDate")
-  .textContent =
-  new Date().toLocaleDateString(
-    undefined,
-    {
-      month:"short",
-      day:"numeric",
-      year:"numeric"
-    }
+  closeModal(
+    "depositModal"
   );
 
 
-/* =========================
-   SECURITY HTML
-========================= */
+  updateUserInterface();
 
-function escapeHTML(value){
+  renderTransactions();
+}
+
+
+/* =========================================================
+   DEMO WITHDRAW
+========================================================= */
+
+function demoWithdraw() {
+
+  const input =
+    document.getElementById(
+      "withdrawAmount"
+    );
+
+
+  const amount =
+    Number(input?.value);
+
+
+  if (
+    !amount ||
+    amount <= 0
+  ) {
+
+    alert(
+      "შეიყვანე თანხა."
+    );
+
+    return;
+  }
+
+
+  if (
+    amount >
+    Number(user.balance || 0)
+  ) {
+
+    alert(
+      "არასაკმარისი ბალანსი."
+    );
+
+    return;
+  }
+
+
+  /*
+    Test-only withdrawal.
+    No real payment is sent anywhere.
+  */
+
+  user.balance =
+    Number(user.balance || 0)
+    - amount;
+
+
+  user.balance =
+    Number(
+      user.balance.toFixed(2)
+    );
+
+
+  user.transactions.unshift({
+
+    type:
+      "Test withdrawal",
+
+    amount:
+      -amount,
+
+    date:
+      new Date().toLocaleString()
+
+  });
+
+
+  saveUser();
+
+
+  if (input)
+    input.value = "";
+
+
+  closeModal(
+    "withdrawModal"
+  );
+
+
+  updateUserInterface();
+
+  renderTransactions();
+
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHTML(value) {
 
   return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 
-/* =========================
-   START
-========================= */
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
 
-if(!user){
+document.addEventListener(
+  "click",
+  event => {
 
-  document
-    .getElementById("loginModal")
-    .classList.add("show");
+    if (
+      event.target.classList
+        .contains("modal")
+    ) {
 
-}else{
+      event.target
+        .classList
+        .remove("show");
 
-  document
-    .getElementById("loginModal")
-    .classList.remove("show");
+    }
 
-  render();
+  }
+);
 
-}
+
+/* =========================================================
+   PREVENT DOUBLE-TAP ZOOM
+========================================================= */
+
+document.addEventListener(
+  "dblclick",
+  event => {
+
+    event.preventDefault();
+
+  },
+  {
+    passive:false
+  }
+);
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    /*
+      If an account already exists,
+      automatically open the site.
+    */
+
+    if (user) {
+
+      enterSite();
+
+    } else {
+
+      const auth =
+        document.getElementById(
+          "authPage"
+        );
+
+      const main =
+        document.getElementById(
+          "mainPage"
+        );
+
+      if (auth)
+        auth.classList.add("active");
+
+      if (main)
+        main.classList.remove("active");
+
+    }
+
+  }
+);
